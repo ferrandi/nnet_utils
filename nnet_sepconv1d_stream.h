@@ -17,7 +17,7 @@ void depthwise_conv_1d_buffer_cl(hls::stream<data_T> &data, hls::stream<res_T> &
     if (CONFIG_T::strategy == nnet::latency) {
     ReadInputWidth:
         for (unsigned i_iw = 0; i_iw < CONFIG_T::in_width; i_iw++) {
-            #pragma HLS PIPELINE II=CONFIG_T::reuse_factor
+            //#pragma HLS PIPELINE II=CONFIG_T::reuse_factor
             compute_depthwise_output_buffer_1d<data_T, res_T, CONFIG_T>(data.read(), res, weights, biases);
         }
     } else {
@@ -34,7 +34,7 @@ void depthwise_conv_1d_cl(hls::stream<data_T> &data, hls::stream<res_T> &res,
                           typename CONFIG_T::bias_t biases[CONFIG_T::n_chan]) {
     assert(CONFIG_T::implementation == conv_implementation::linebuffer &&
            "Only \"linebuffer\" implementation is supported in Vitis HLS.");
-    #pragma HLS inline recursive
+    //#pragma HLS inline recursive
     depthwise_conv_1d_buffer_cl<data_T, res_T, CONFIG_T>(data, res, weights, biases);
 }
 
@@ -45,13 +45,13 @@ void pointwise_conv_1d_cl(hls::stream<data_T> &data, hls::stream<res_T> &res,
     assert(CONFIG_T::pad_left == 0 && CONFIG_T::pad_right == 0);
     assert(CONFIG_T::filt_width == 1);
 
-    #pragma HLS ARRAY_PARTITION variable=weights complete
-    #pragma HLS ARRAY_PARTITION variable=biases complete
+    //#pragma HLS ARRAY_PARTITION variable=weights complete
+    //#pragma HLS ARRAY_PARTITION variable=biases complete
 
     if (CONFIG_T::strategy == nnet::latency) {
     ReadInputWidth:
         for (unsigned i_iw = 0; i_iw < CONFIG_T::in_width; i_iw++) {
-            #pragma HLS PIPELINE II=CONFIG_T::reuse_factor
+            //#pragma HLS PIPELINE II=CONFIG_T::reuse_factor
             if (i_iw % CONFIG_T::stride_width == 0) {
                 pointwise_mult_buffer<data_T, res_T, CONFIG_T>(data.read(), res, weights, biases);
             } else {
@@ -83,11 +83,11 @@ void separable_conv_1d_cl(hls::stream<data_T> &data, hls::stream<res_T> &res,
     assert(CONFIG_T::pointwise_config::implementation == conv_implementation::linebuffer &&
            "Only \"linebuffer\" implementation is supported in Vitis HLS.");
 
-    #pragma HLS DATAFLOW
+    //#pragma HLS DATAFLOW
 
     hls::stream<dw_res_T> depthwise_res;
     constexpr unsigned res_depth = CONFIG_T::depthwise_config::out_width;
-    #pragma HLS STREAM variable=depthwise_res depth=res_depth
+    //#pragma HLS STREAM variable=depthwise_res depth=res_depth
 
     depthwise_conv_1d_buffer_cl<data_T, dw_res_T, typename CONFIG_T::depthwise_config>(data, depthwise_res,
                                                                                        depthwise_weights, depthwise_biases);

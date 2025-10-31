@@ -19,7 +19,7 @@ void conv_1d_cl(hls::stream<data_T> &data, hls::stream<res_T> &res,
     if (CONFIG_T::strategy == nnet::latency) {
     ReadInputWidth:
         for (unsigned i_iw = 0; i_iw < CONFIG_T::in_width; i_iw++) {
-            #pragma HLS PIPELINE II=CONFIG_T::reuse_factor
+            //#pragma HLS PIPELINE II=CONFIG_T::reuse_factor
             compute_output_buffer_1d<data_T, res_T, CONFIG_T>(data.read(), res, weights, biases);
         }
     } else {

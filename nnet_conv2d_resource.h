@@ -30,12 +30,12 @@ void conv_2d_resource_cl(
         (typename CONFIG_T::weight_t(*)[CONFIG_T::reuse_factor])weights;
 
     data_T data_buf[CONFIG_T::n_pixels][mult_n_in];
-    #pragma HLS ARRAY_PARTITION variable=data_buf complete dim=0
+    //#pragma HLS ARRAY_PARTITION variable=data_buf complete dim=0
 
-    #pragma HLS ARRAY_PARTITION variable=biases complete
+    //#pragma HLS ARRAY_PARTITION variable=biases complete
 
     typename CONFIG_T::accum_t acc[CONFIG_T::n_pixels][mult_n_out];
-    #pragma HLS ARRAY_PARTITION variable=acc complete dim=0
+    //#pragma HLS ARRAY_PARTITION variable=acc complete dim=0
 
 PartitionLoop:
     for (unsigned i_part = 0; i_part < CONFIG_T::n_partitions; i_part++) {
@@ -45,18 +45,18 @@ PartitionLoop:
 
     PixelInitAccumLoop:
         for (unsigned i_pxl = 0; i_pxl < CONFIG_T::n_pixels; i_pxl++) {
-            #pragma HLS UNROLL
+            //#pragma HLS UNROLL
 
         InitAccumLoop:
             for (unsigned i_acc = 0; i_acc < mult_n_out; i_acc++) {
-                #pragma HLS UNROLL
+                //#pragma HLS UNROLL
                 acc[i_pxl][i_acc] = (typename CONFIG_T::accum_t)biases[i_acc];
             }
         }
 
     ReuseLoop:
         for (unsigned i_rf = 0; i_rf < CONFIG_T::reuse_factor; i_rf++) {
-            #pragma HLS PIPELINE II=1 rewind
+            //#pragma HLS PIPELINE II=1 rewind
 
             unsigned i_in = i_rf;
             unsigned i_out = 0;
@@ -64,11 +64,11 @@ PartitionLoop:
 
         MultLoop:
             for (unsigned i_blk = 0; i_blk < block_factor; i_blk++) {
-                #pragma HLS UNROLL
+                //#pragma HLS UNROLL
 
             PixelMultLoop:
                 for (unsigned i_pxl = 0; i_pxl < CONFIG_T::n_pixels; i_pxl++) {
-                    #pragma HLS UNROLL
+                    //#pragma HLS UNROLL
 
                     acc[i_pxl][i_out] += static_cast<typename CONFIG_T::accum_t>(
                         CONFIG_T::mult_config::template product<data_T, typename CONFIG_T::mult_config::weight_t>::product(
@@ -92,11 +92,11 @@ PartitionLoop:
 
     PixelResultLoop:
         for (unsigned i_pxl = 0; i_pxl < CONFIG_T::n_pixels; i_pxl++) {
-        #pragma HLS UNROLL
+        //#pragma HLS UNROLL
         // Cast to "res_t" type
         ResultLoop:
             for (unsigned i_res = 0; i_res < mult_n_out; i_res++) {
-                #pragma HLS UNROLL
+                //#pragma HLS UNROLL
                 res[i_part * CONFIG_T::n_pixels * mult_n_out + i_pxl * mult_n_out + i_res] =
                     cast<data_T, res_T, typename CONFIG_T::mult_config>(acc[i_pxl][i_res]);
             }

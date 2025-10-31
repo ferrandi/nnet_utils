@@ -18,14 +18,14 @@ void conv_2d_buffer_latency_cl(
 
     static ap_shift_reg<typename data_T::value_type, CONFIG_T::in_width> line_buffer[MAX(CONFIG_T::filt_height - 1, 1)]
                                                                                     [CONFIG_T::n_chan];
-    #pragma HLS ARRAY_PARTITION variable = line_buffer complete dim = 2
+    //#pragma HLS ARRAY_PARTITION variable = line_buffer complete dim = 2
 
 ReadInputHeight:
     for (unsigned i_ih = 0; i_ih < CONFIG_T::in_height; i_ih++) {
     ReadInputWidth:
         for (unsigned i_iw = 0; i_iw < CONFIG_T::in_width; i_iw++) {
-            #pragma HLS LOOP_FLATTEN
-            #pragma HLS PIPELINE II=CONFIG_T::reuse_factor
+            //#pragma HLS LOOP_FLATTEN
+            //#pragma HLS PIPELINE II=CONFIG_T::reuse_factor
 
             if (CONFIG_T::filt_height > 1) {
                 compute_output_buffer_2d<data_T, res_T, CONFIG_T>(data.read(), line_buffer, res, weights, biases);
@@ -45,13 +45,13 @@ void conv_2d_buffer_resource_cl(
 
     static ap_shift_reg<typename data_T::value_type, CONFIG_T::in_width> line_buffer[MAX(CONFIG_T::filt_height - 1, 1)]
                                                                                     [CONFIG_T::n_chan];
-    #pragma HLS ARRAY_PARTITION variable = line_buffer complete dim = 2
+    //#pragma HLS ARRAY_PARTITION variable = line_buffer complete dim = 2
 
 ReadInputHeight:
     for (unsigned i_ih = 0; i_ih < CONFIG_T::in_height; i_ih++) {
     ReadInputWidth:
         for (unsigned i_iw = 0; i_iw < CONFIG_T::in_width; i_iw++) {
-            #pragma HLS LOOP_FLATTEN
+            //#pragma HLS LOOP_FLATTEN
 
             if (CONFIG_T::filt_height > 1) {
                 compute_output_buffer_2d<data_T, res_T, CONFIG_T>(data.read(), line_buffer, res, weights, biases);
@@ -70,7 +70,7 @@ void conv_2d_cl(
     assert(CONFIG_T::implementation == conv_implementation::linebuffer &&
            "Only \"linebuffer\" implementation is supported in Vitis HLS.");
 
-    #pragma HLS INLINE recursive
+    //#pragma HLS INLINE recursive
     if (CONFIG_T::strategy == nnet::latency) {
         conv_2d_buffer_latency_cl<data_T, res_T, CONFIG_T>(data, res, weights, biases);
     } else {
